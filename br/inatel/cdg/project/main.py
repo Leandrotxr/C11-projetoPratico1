@@ -10,7 +10,23 @@ df = df.apply(lambda col: col.str.strip() if col.dtype == "object" else col)
 df = df.replace(r'^\s*$', np.nan, regex=True)
 
 #===================================================================================
-#Primeira pergunta: gráfico e horas dormidas, horas estudadas e nível de estresse
+#Primeira pergunta: horas dormidas e nível de estresse
+#===================================================================================
+mean_sleep_by_stress = df.groupby('Stress_Level')['Sleep_Hours_Per_Day'].mean().reindex(['Low', 'Moderate', 'High'])
+mean_sleep_by_stress = mean_sleep_by_stress.dropna()
+# Plotar gráfico de barras
+plt.figure(figsize=(8,5))
+mean_sleep_by_stress.plot(kind='bar', color=['green', 'orange', 'red'])
+plt.title('Média de Horas de Sono por Nível de Estresse')
+plt.xlabel('Nível de Estresse')
+plt.ylabel('Horas de Sono por Dia')
+plt.xticks(rotation=0)
+plt.ylim(0, max(mean_sleep_by_stress) + 1)
+plt.grid(axis='y', linestyle='--', alpha=0.7)
+plt.show()
+
+#===================================================================================
+#Segunda pergunta: gráfico e horas dormidas, horas estudadas e nível de estresse
 #===================================================================================
 df["School_performance"] = (df["GPA"] -  df["GPA"].min()) / (df["GPA"].max() - df["GPA"].min())
 
@@ -35,7 +51,6 @@ df["Stress_Level_Num"] = df["Stress_Level"].map(stress_map)
 grouped = df.groupby("Performance_Category")[[
         "Study_Hours_Per_Day",
         "Sleep_Hours_Per_Day",
-        "Physical_Activity_Hours_Per_Day",
         "Stress_Level_Num"]].mean().reset_index()
 
 # Gráfico de dispersão (cada ponto = uma categoria)
@@ -68,5 +83,3 @@ cbar = plt.colorbar(scatter)
 cbar.set_label("Nível Médio de Estresse", fontsize=12)
 plt.tight_layout()
 plt.show()
-
-#===================================================================================
