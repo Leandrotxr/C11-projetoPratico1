@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 
 df = pd.read_csv('../data/student_lifestyle_dataset.csv', delimiter=',')
 
-print("✅ Dataset carregado com sucesso!\n")
+print("Dataset carregado com sucesso!\n")
 
 df = df.apply(lambda col: col.str.strip() if col.dtype == "object" else col)
 df = df.replace(r'^\s*$', np.nan, regex=True)

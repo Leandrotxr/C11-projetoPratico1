@@ -9,20 +9,19 @@ Este projeto realiza uma análise visual de dados relacionados ao estilo de vida
 Visualizar como os hábitos diários (estudo, sono e estresse) variam de acordo com o desempenho escolar dos estudantes.
 
 ## 📁 Estrutura do Projeto
+```bash
 C11-projetoPratico1/
-│
 ├── br/
 │ └── inatel/
 │ ├── cdg/
 │ │ ├── data/
-│ │ │ └── student_lifestyle_dataset.csv
+│ │ │  └── student_lifestyle_dataset.csv
 │ │ └── project/
-│ │ └── main.py
-│
+│ │    └── main.py
 ├── LICENSE
 ├── README.md
 └── requirements.txt
-
+```
 ## 🧪 Requisitos
 
 - Python 3.7+
