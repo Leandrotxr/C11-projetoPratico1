@@ -6,7 +6,7 @@ dataset = pd.read_csv('../data/student_lifestyle_dataset.csv', delimiter=',')
 
 print("Dataset carregado com sucesso!\n")
 
-dataset = dataset.apply(lambda col: col.str.strip() if col.dtype == "object" else col)
+dataset['Stress_Level'].str.strip()
 dataset = dataset.replace(r'^\s*$', np.nan, regex=True)
 
 print(dataset)
