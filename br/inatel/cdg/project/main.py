@@ -22,11 +22,52 @@ plt.xlabel('Nível de Estresse')
 plt.ylabel('Horas de Sono por Dia')
 plt.xticks(rotation=0)
 plt.ylim(0, max(mean_sleep_by_stress) + 1)
-plt.grid(axis='y', linestyle='--', alpha=0.7)
+plt.grid(axis='y', linestyle='', alpha=0.7)
 plt.show()
 
 #===================================================================================
-#Segunda pergunta: gráfico e horas dormidas, horas estudadas e nível de estresse
+#Segunda pergunta: horas dormidas, atividades fisicas e estresse
+#===================================================================================
+df["School_performance"] = (df["GPA"] -  df["GPA"].min()) / (df["GPA"].max() - df["GPA"].min())
+stress_map = {"Low": 1, "Moderate": 2, "High": 3}
+df["Stress_Level_Num"] = df["Stress_Level"].map(stress_map)
+
+sleep_mask = df["Sleep_Hours_Per_Day"].between(7, 8)
+activity_mask = df["Physical_Activity_Hours_Per_Day"] > df["Physical_Activity_Hours_Per_Day"].median()
+health_group = df[sleep_mask & activity_mask].sample(n=100, random_state=42)
+
+low_sleep_mask = df["Sleep_Hours_Per_Day"] <= df["Sleep_Hours_Per_Day"].nsmallest(500).max()
+activity_mask = df["Physical_Activity_Hours_Per_Day"] < df["Physical_Activity_Hours_Per_Day"].median()
+not_health_group = df[low_sleep_mask & activity_mask].sample(n=100, random_state=42)
+
+media_saudavel = health_group["Stress_Level_Num"].mean()
+media_nao_saudavel = not_health_group["Stress_Level_Num"].mean()
+
+grupos = ["Saudável", "Não Saudável"]
+medias = [media_saudavel, media_nao_saudavel]
+plt.figure(figsize=(6, 5))
+barras = plt.bar(grupos, medias, color=["green", "red"], alpha=0.9)
+plt.title("Comparação do Nível Médio de Estresse entre Grupos", fontsize=10)
+plt.ylabel("Nível Médio de Estresse")
+plt.ylim(0, 3)
+
+for barra in barras:
+    plt.text(
+        barra.get_x() + barra.get_width() / 2,
+        barra.get_height() / 2,
+        f"{barra.get_height():.2f}",
+        ha="center",
+        va="bottom",
+        fontsize=10,
+        fontweight="bold"
+    )
+
+plt.grid(axis="y", linestyle="", alpha=0.6)
+plt.tight_layout()
+plt.show()
+
+#===================================================================================
+#Terceira pergunta: gráfico e horas dormidas, horas estudadas e nível de estresse
 #===================================================================================
 df["School_performance"] = (df["GPA"] -  df["GPA"].min()) / (df["GPA"].max() - df["GPA"].min())
 
@@ -65,7 +106,6 @@ scatter = plt.scatter(
     edgecolor="black"
 )
 
-# Adicionar rótulos das categorias
 for i, row in grouped.iterrows():
     plt.text(
         row["Study_Hours_Per_Day"] + 0.025,
