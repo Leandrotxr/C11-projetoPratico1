@@ -123,3 +123,43 @@ cbar = plt.colorbar(scatter)
 cbar.set_label("Nível Médio de Estresse", fontsize=12)
 plt.tight_layout()
 plt.show()
+
+#===================================================================================
+#Quarta pergunta: Distribuição diária média dos estudantes
+#===================================================================================
+df["Free_Hours_Per_Day"] = 24 - (df["Study_Hours_Per_Day"] + df["Extracurricular_Hours_Per_Day"] + df["Sleep_Hours_Per_Day"] + df["Physical_Activity_Hours_Per_Day"])
+
+mean_day = df[[
+    "Study_Hours_Per_Day",
+    "Sleep_Hours_Per_Day",
+    "Physical_Activity_Hours_Per_Day",
+    "Extracurricular_Hours_Per_Day",
+    "Free_Hours_Per_Day"
+]].mean()
+
+labels = {
+    "Study_Hours_Per_Day": "Horas de Estudo",
+    "Sleep_Hours_Per_Day": "Horas de Sono",
+    "Physical_Activity_Hours_Per_Day": "Atividade Física",
+    "Extracurricular_Hours_Per_Day": "Atividades Extracurriculares",
+    "Free_Hours_Per_Day": "Horas Livres"
+}
+
+mean_day.index = mean_day.index.map(labels)
+
+plt.figure(figsize=(7,7))
+
+def label_hours(pct, values):
+    percent = pct/100 * sum(values)
+    return f"{percent:.1f}h"
+
+plt.pie(
+    mean_day,
+    labels=mean_day.index,
+    autopct=lambda percent: label_hours(percent, mean_day),
+)
+
+plt.title("Distribuição Média das 24h do Dia (em horas)", fontsize=14)
+plt.tight_layout()
+plt.show()
+
