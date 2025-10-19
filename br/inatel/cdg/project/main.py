@@ -206,3 +206,79 @@ plt.ylabel("Horas de estudo e atividades extracurriculares por dia")
 
 plt.tight_layout()
 plt.show()
+
+#===================================================================================
+#Sétima pergunta: relação entre horas de estudo e performace acadêmica (interpolada)
+#===================================================================================
+from scipy.interpolate import make_interp_spline
+
+study_perf = df.groupby("Study_Hours_Per_Day")["GPA"].mean().reset_index().sort_values("Study_Hours_Per_Day")
+
+x = study_perf["Study_Hours_Per_Day"]
+y = study_perf["GPA"]
+x_smooth = np.linspace(x.min(), x.max(), 1000)
+spline = make_interp_spline(x, y)
+y_smooth = spline(x_smooth)
+
+plt.figure(figsize=(10,6))
+plt.plot(x_smooth, y_smooth, color="blue", linewidth=2, label="Interpolação (tendência)")
+plt.scatter(x, y, color="red", alpha=0.7, label="Média real por grupo")
+
+plt.title("Relação entre Horas de Estudo e Performance Acadêmica (Interpolada)", fontsize=14)
+plt.xlabel("Horas de Estudo por Dia")
+plt.ylabel("GPA Médio")
+plt.grid(True, linestyle="--", alpha=0.5)
+plt.legend()
+plt.tight_layout()
+plt.show()
+
+#===================================================================================
+#Oitava pergunta: relação entre horas livres e performance acadêmica
+#===================================================================================
+free_perf = df.groupby("Performance_Category")["Free_Hours_Per_Day"].mean().reindex(choices + ["E"])
+
+plt.figure(figsize=(8,5))
+plt.bar(free_perf.index, free_perf.values, color="green", alpha=0.8)
+plt.title("Média de Horas Livres por Categoria de Performance", fontsize=14)
+plt.xlabel("Categoria de Performance Acadêmica")
+plt.ylabel("Horas Livres por Dia")
+plt.xticks(rotation=0)
+plt.grid(axis="y", linestyle="--", alpha=0.6)
+plt.tight_layout()
+plt.show()
+
+#===================================================================================
+#Nona pergunta: Distribuição Gaussiana do GPA em relação às horas de sono
+#===================================================================================
+from scipy.stats import norm
+
+bins = [0, 4, 6, 8, 10, 24]
+labels = ["0–4h", "4–6h", "6–8h", "8–10h", "10h+"]
+df["Sleep_rates"] = pd.cut(df["Sleep_Hours_Per_Day"], bins=bins, labels=labels, include_lowest=True)
+
+plt.figure(figsize=(10, 6))
+
+colors = ["#ff9999", "#ffcc66", "#99ff99", "#66b3ff", "#cc99ff"]
+
+for faixa, cor in zip(labels, colors):
+    subset = df[df["Sleep_rates"] == faixa]["GPA"].dropna()
+    if subset.empty:
+        continue
+
+    mu, sigma = subset.mean(), subset.std()
+
+    x = np.linspace(subset.min(), subset.max(), 200)
+    y = norm.pdf(x, mu, sigma)
+
+    y_scaled = y * (len(subset) * (subset.max() - subset.min()) / 20)
+
+    plt.hist(subset, bins=20, alpha=0.35, color=cor, label=faixa)
+    plt.plot(x, y_scaled, color=cor, linewidth=2)
+
+plt.title("Distribuição Gaussiana do GPA por Faixa de Horas de Sono", fontsize=14)
+plt.xlabel("GPA", fontsize=12)
+plt.ylabel("Número de Alunos por Faixa de GPA", fontsize=12)
+plt.legend(title="Faixas de Sono", fontsize=10)
+plt.grid(True, linestyle="--", alpha=0.5)
+plt.tight_layout()
+plt.show()
