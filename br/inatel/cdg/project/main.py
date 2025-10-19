@@ -5,6 +5,8 @@ import matplotlib.pyplot as plt
 df = pd.read_csv('../data/student_lifestyle_dataset.csv', delimiter=',')
 
 print("Dataset carregado com sucesso!\n")
+print(df.head())
+print(df.info())
 
 df = df.apply(lambda col: col.str.strip() if col.dtype == "object" else col)
 df = df.replace(r'^\s*$', np.nan, regex=True)
@@ -163,3 +165,44 @@ plt.title("Distribuição Média das 24h do Dia (em horas)", fontsize=14)
 plt.tight_layout()
 plt.show()
 
+#===================================================================================
+#Quinta pergunta: Relação entre GPA e quantidade de horas estudadas por dia
+#===================================================================================
+df["GPA_rounded"] = (df["GPA"] / 0.25).round() * 0.25
+avg_per_group = df.groupby("GPA_rounded")["Study_Hours_Per_Day"].mean().reset_index()
+
+plt.scatter(avg_per_group["GPA_rounded"], avg_per_group["Study_Hours_Per_Day"], s=100, label="Average per group")
+plt.title("Relação entre GPA e horas de estudo por dia")
+plt.xlabel("GPA")
+plt.ylabel("Horas de Estudo por Dia")
+plt.grid(True, linestyle="--", alpha=0.5)
+plt.show()
+
+#===================================================================================
+#Sexta pergunta: Comparação entre horas pessoais e não pessoais por nível de estresse
+#===================================================================================
+df["Personal_Hours_Per_Day"] = df["Social_Hours_Per_Day"] + df["Physical_Activity_Hours_Per_Day"]
+df["Non_Personal_Hours_Per_Day"] = df["Study_Hours_Per_Day"] + df["Extracurricular_Hours_Per_Day"]
+personal_hours_stress_group = df.groupby("Stress_Level")["Personal_Hours_Per_Day"].mean()
+non_personal_hours_stress_group = df.groupby("Stress_Level")["Non_Personal_Hours_Per_Day"].mean()
+
+order = ["Low", "Moderate", "High"]
+personal_hours_stress_group = personal_hours_stress_group.reindex(order)
+non_personal_hours_stress_group = non_personal_hours_stress_group.reindex(order)
+
+plt.figure(figsize=(12, 6))
+
+plt.subplot(1, 2, 1)
+plt.bar(personal_hours_stress_group.index, personal_hours_stress_group.values)
+plt.title("Relação de quantidade de horas pessoais por nível de estresse")
+plt.xlabel("Nível de estresse")
+plt.ylabel("Horas sociais e de atividade física por dia")
+
+plt.subplot(1, 2, 2)
+plt.bar(non_personal_hours_stress_group.index, non_personal_hours_stress_group.values)
+plt.title("Relação de quantidade de horas não pessoais por nível de estresse")
+plt.xlabel("Nível de estresse")
+plt.ylabel("Horas de estudo e atividades extracurriculares por dia")
+
+plt.tight_layout()
+plt.show()
