@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+from scipy.stats import norm
 
 df = pd.read_csv('../data/student_lifestyle_dataset.csv', delimiter=',')
 
@@ -250,8 +251,6 @@ plt.show()
 #===================================================================================
 #Nona pergunta: Distribuição Gaussiana do GPA em relação às horas de sono
 #===================================================================================
-from scipy.stats import norm
-
 bins = [0, 4, 6, 8, 10, 24]
 labels = ["0–4h", "4–6h", "6–8h", "8–10h", "10h+"]
 df["Sleep_rates"] = pd.cut(df["Sleep_Hours_Per_Day"], bins=bins, labels=labels, include_lowest=True)
@@ -280,5 +279,44 @@ plt.xlabel("GPA", fontsize=12)
 plt.ylabel("Número de Alunos por Faixa de GPA", fontsize=12)
 plt.legend(title="Faixas de Sono", fontsize=10)
 plt.grid(True, linestyle="--", alpha=0.5)
+plt.tight_layout()
+plt.show()
+
+#===================================================================================
+#Décima pergunta: Relação entre sono, atividade física e desempenho acadêmico
+#===================================================================================
+sleep_hours = df["Sleep_Hours_Per_Day"]
+physical_hours = df["Physical_Activity_Hours_Per_Day"]
+
+sleep_small_amount_hours = sleep_hours < 6
+sleep_ideal_amount_hours = (sleep_hours >= 6) & (sleep_hours <= 8)
+sleep_alot_amount_hours = sleep_hours > 8
+sleep_category = pd.Series(index=df.index, dtype="object")
+sleep_category[sleep_small_amount_hours] = "Pouco Sono"
+sleep_category[sleep_ideal_amount_hours] = "Sono Ideal"
+sleep_category[sleep_alot_amount_hours] = "Muito Sono"
+df["Sleep_Category"] = sleep_category
+
+avg_activity = df["Physical_Activity_Hours_Per_Day"].median()
+physical_small_amount_hours = physical_hours <= avg_activity
+physical_alot_amount_hours = physical_hours > avg_activity
+avg_activity_category = pd.Series(index=df.index, dtype="object")
+avg_activity_category[physical_small_amount_hours] = "Pouca atividade"
+avg_activity_category[physical_alot_amount_hours] = "Muita atividade"
+df["Physical_Category"] = avg_activity_category
+
+grouped = df.groupby(["Sleep_Category", "Physical_Category"])["GPA"].mean()
+heatmap_data = grouped.unstack()
+sleep_order = ["Pouco Sono", "Sono Ideal", "Muito Sono"]
+heatmap_data = heatmap_data.reindex(sleep_order)
+
+plt.figure(figsize=(8, 5))
+plt.imshow(heatmap_data, cmap="YlGnBu", aspect="auto")
+plt.colorbar(label="GPA Médio")
+plt.xticks(ticks=np.arange(len(heatmap_data.columns)), labels=heatmap_data.columns)
+plt.yticks(ticks=np.arange(len(heatmap_data.index)), labels=heatmap_data.index)
+plt.title("GPA Médio por Categoria de Sono e Atividade Física", fontsize=14)
+plt.xlabel("Nível de Atividade Física")
+plt.ylabel("Categoria de Sono")
 plt.tight_layout()
 plt.show()
