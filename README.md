@@ -28,6 +28,7 @@ C11-projetoPratico1/
 - Pandas
 - NumPy
 - Matplotlib
+- SciPy ≥ 1.11
 
 ### Instalar dependências:
 ```bash
